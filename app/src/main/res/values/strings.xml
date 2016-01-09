@@ -7,4 +7,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="title_activity_maps">Map</string>
+    <string name="google_maps_key">AIzaSyAB33L3NWiw4zdIIZ6J4duVNZw1hVVioas</string>
+    <string name="title_activity_maps2">Map</string>
+
 </resources>
