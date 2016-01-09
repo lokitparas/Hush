@@ -3,6 +3,7 @@ package com.example.lokit.hush;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -122,24 +124,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                                + "Long " + arg0.longitude,
 //                        Toast.LENGTH_LONG).show();
                perth.setPosition(arg0);
+                mMap.addCircle(new CircleOptions()
+                        .center(new LatLng(perth.getPosition().latitude, perth.getPosition().longitude))
+                        .radius(100)
+                        .strokeColor(Color.BLUE)
+                        .fillColor(Color.BLUE));
             }
         });
-        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-            @Override
-            public void onMarkerDragStart(Marker marker) {
 
-            }
+            mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                @Override
+                public void onMarkerDragStart(Marker marker) {
 
-            @Override
-            public void onMarkerDrag(Marker marker) {
+                }
 
-            }
+                @Override
+                public void onMarkerDrag(Marker marker) {
 
-            @Override
-            public void onMarkerDragEnd(Marker marker) {
+                }
 
-            }
-        });
+                @Override
+                public void onMarkerDragEnd(Marker marker) {
+
+                }
+            });
 
             };
 
