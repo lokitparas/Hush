@@ -1,6 +1,8 @@
 package com.example.lokit.hush;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,14 +15,64 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    public static final String TABLE_RECORDS = "records";
+    protected MyApplication app;
+    protected SQLiteDatabase mDB;
+    protected ListView items;
+    public ListView activeList;
+
+    public ArrayList<Record> getAllRecords(SQLiteDatabase db) {
+        ArrayList<Record> recordList = new ArrayList<Record>();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + TABLE_RECORDS;
+
+//        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Record record = new Record();
+                record.setename(cursor.getString(1));
+                record.setetype(cursor.getString(2));
+                record.setstime(cursor.getString(3));
+                record.setetime(cursor.getString(4));
+                record.setmute(cursor.getInt(5));
+                record.setvibr(cursor.getInt(6));
+                //temp.add(cursor.getDouble(9));
+                //record.setLocation(temp);
+
+                recordList.add(record);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return recordList;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+        app = (MyApplication)getApplication();
+        mDB = ((MyApplication)getApplication()).mDB;
+//        activeList = (ListView) mContainer.findViewById(R.id.items2);
+        //items = (ListView) findViewById(R.id.items2);
+
+        ArrayList<Record> l1 = getAllRecords(mDB);
+        if(!l1.isEmpty()){
+        UserAdapter itemsAdapter = new UserAdapter(this,l1);
+        activeList.setAdapter(itemsAdapter);
+        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

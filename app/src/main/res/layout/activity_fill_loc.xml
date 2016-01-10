@@ -164,33 +164,25 @@
                 android:layout_below="@+id/sat"
                 />
 
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="25dp"
+                android:id="@+id/Locdata"
+                android:visibility="invisible"
+                android:layout_below="@+id/sun"/>
+
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="SELECT LOCATION"
                 android:id="@+id/select_loc"
-                android:layout_below="@+id/sun"
+                android:layout_below="@+id/Locdata"
                 android:layout_centerHorizontal="true"
                 android:onClick="selectLocation" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Select Radius"
-                android:id="@+id/select_rad"
-                android:layout_below="@+id/select_loc"
-                android:paddingTop="20dp" />
-
-            <SeekBar
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/seekBar"
-                android:clickable="true"
-                android:max="10"
-                android:paddingTop="15dp"
-                android:layout_below="@+id/select_rad"
-                android:layout_alignParentStart="true" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -198,7 +190,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Sound Settings"
                 android:id="@+id/soundset"
-                android:layout_below="@+id/select_rad"
+                android:layout_below="@+id/select_loc"
                 android:paddingTop="50dp" />
 
             <CheckBox

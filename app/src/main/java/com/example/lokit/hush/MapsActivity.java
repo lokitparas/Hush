@@ -2,23 +2,29 @@ package com.example.lokit.hush;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.provider.DocumentsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -29,15 +35,40 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private int seekBarValue;
+    private Double currLat;
+    private Double currLong;
+    private Circle c;
+    private SeekBar s;
+    private Button done;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        s = (SeekBar) findViewById(R.id.seekBar);
+        done = (Button) findViewById(R.id.done);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        done.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent data = new Intent();
+                data.putExtra("CurrLong", String.valueOf(currLong));
+                data.putExtra("CurrLat", String.valueOf(currLat));
+                data.putExtra("radius", String.valueOf(seekBarValue*10));
+                data.putExtra("Long", String.valueOf(c.getCenter().longitude));
+                data.putExtra("Lat", String.valueOf(c.getCenter().latitude));
+                setResult(RESULT_OK, data);
+
+                finish();
+
+            }
+        });
+
     }
 
 
@@ -74,13 +105,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 bestLocation = l;
             }
         }
+        currLat = bestLocation.getLatitude();
+        currLong = bestLocation.getLongitude();
         return bestLocation;
     }
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+
         // Add a marker in Sydney and move the camera
-        LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 
 //And the all the codes I had before
@@ -103,55 +140,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Location location = getLastKnownLocation();
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        if(location != null) {
+        if (location != null) {
             double lat = location.getLatitude();
             double lng = location.getLongitude();
             LatLng latLng = new LatLng(lat, lng);
 
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
-            final Marker perth= mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title("Marker").draggable(true).snippet("Snippet"));
-
+            final Marker perth = mMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title("Marker").draggable(true).snippet("Snippet"));
+            c = mMap.addCircle(new CircleOptions()
+                    .center(new LatLng(perth.getPosition().latitude, perth.getPosition().longitude))
+                    .radius(0)
+                    .strokeColor(Color.BLUE)
+                    );
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
-            @Override
-            public void onMapClick(LatLng arg0) {
-                // TODO Auto-generated method stub
-                Log.d("arg0", arg0.latitude + "-" + arg0.longitude);
+                @Override
+                public void onMapClick(LatLng arg0) {
+                    // TODO Auto-generated method stub
+                    Log.d("arg0", arg0.latitude + "-" + arg0.longitude);
 //                Toast.makeText(
 //                        MapsActivity.this,
 //                        "Lat " + arg0.latitude + " "
 //                                + "Long " + arg0.longitude,
 //                        Toast.LENGTH_LONG).show();
-               perth.setPosition(arg0);
-                mMap.addCircle(new CircleOptions()
-                        .center(new LatLng(perth.getPosition().latitude, perth.getPosition().longitude))
-                        .radius(100)
-                        .strokeColor(Color.BLUE)
-                        .fillColor(Color.BLUE));
-            }
-        });
-
-            mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
-                @Override
-                public void onMarkerDragStart(Marker marker) {
-
-                }
-
-                @Override
-                public void onMarkerDrag(Marker marker) {
-
-                }
-
-                @Override
-                public void onMarkerDragEnd(Marker marker) {
+                    perth.setPosition(arg0);
+                    c.setCenter(arg0);
 
                 }
             });
 
-            };
+            s.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    // TODO Auto-generated method stub
 
+                    seekBarValue = 10*progress;
+                    c.setRadius(seekBarValue);
+                    // Toast.makeText(getApplicationContext(), String.valueOf(progress),Toast.LENGTH_LONG).show();
+                }
 
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
         }
 
 //        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -215,20 +253,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //                 // Show the current location in Google Map
 //                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-                 // Zoom in the Google Map
-
+        // Zoom in the Google Map
 
 
         // set map type
 
 
-                 // Get latitude of the current location
+        // Get latitude of the current location
 //                 double latitude = myLocation.getLatitude();
 //
 //                 // Get longitude of the current location
 //                 double longitude = myLocation.getLongitude();
 
-                 // Create a LatLng object for the current location
+        // Create a LatLng object for the current location
 //                 LatLng latLng = new LatLng(latitude, longitude);
 //
 //                 // Show the current location in Google Map
@@ -241,3 +278,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+};
